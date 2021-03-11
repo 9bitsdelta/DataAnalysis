@@ -11,28 +11,44 @@ public:
             1.0f, 0.0f, -1.0f
         };
 
-        m_WindowFlags |= ImGuiWindowFlags_NoCollapse;
     }
 
     void update() override
     {
-        //bool show = true;
-        //ImGui::ShowDemoWindow(&show);
+        ImGui::StyleColorsDark();
 
-        ImGui::Begin("Example", NULL, m_WindowFlags);
+        ImGuiBarDock();
 
-        ImPlot::BeginPlot("Plot");
-        ImPlot::PlotLine<float>("label", m_Plot.data(), m_Plot.data(), m_Plot.size());
-        ImPlot::EndPlot();
+        ImGui::Begin("Example", NULL);
 
-        if (ImGui::Button("Press Me!"))
-            mahi::util::print("Hello, World!");
+        if (ImPlot::BeginPlot("Plot"))
+        {
+            ImPlot::PlotLine<float>("label", m_Plot.data(), m_Plot.data(), m_Plot.size());
+            ImPlot::EndPlot();
+        }
+
         ImGui::End();
+    }
+
+    void ImGuiBarDock()
+    {
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                ImGui::Text("Foo");
+                ImGui::Separator();
+                if (ImGui::MenuItem("Quit")) { Application::quit(); }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
     }
 
 private:
     std::vector<float> m_Plot;
-    ImGuiWindowFlags m_WindowFlags = 0;
+
 };
 
 int main() {

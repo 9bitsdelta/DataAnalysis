@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.17)
+
 include(FetchContent) 
 FetchContent_Declare(mahi-gui GIT_REPOSITORY https://github.com/mahilab/mahi-gui.git) 
 FetchContent_MakeAvailable(mahi-gui)
