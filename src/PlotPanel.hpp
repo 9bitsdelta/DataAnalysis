@@ -1,8 +1,7 @@
 #pragma once
 
-#include "implot.h"
-#include <vector>
-#include <memory>
+#include "Plot.hpp"
+#include "Axis.hpp"
 
 // Wishlist
 //      - Viewports are just a string
@@ -12,30 +11,21 @@
 //      - PlotPanel displays all plots (the list) and the graphics in their own viewports
 //      - Drag and drop plot to viewport (for visual)
 
-struct Axis // Placeholder
-{
-    std::vector<double> values = {};
-};
+namespace PPP {
 
-struct Plot
-{
-    std::shared_ptr<Axis> xAxis;
-    std::shared_ptr<Axis> yAxis;
-};
+    class PlotPanel
+    {
+    private:
+        Plot m_Plot;
 
-class PlotPanel
-{
-private:
-    Plot m_Plot;
+    public:
+        PlotPanel();
+        ~PlotPanel();
 
-public:
-    bool isOpen;
+        void OnGuiRender();
 
-public:
-    PlotPanel();
-    ~PlotPanel();
+        void SubmitPlot(const Plot& plot) { m_Plot = plot; }
+    };
 
-    void OnGuiRender();
+}
 
-    void SubmitPlot(const Plot& plot) { m_Plot = plot; }
-};

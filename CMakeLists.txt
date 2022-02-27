@@ -9,6 +9,6 @@ file(GLOB SRC
     "src/*.cpp"
     )
 
-project(DataAnalysis)
+project(plot-pp)
 add_executable(${PROJECT_NAME} ${SRC})
 target_link_libraries(${PROJECT_NAME} mahi::gui)
