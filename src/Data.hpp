@@ -1,17 +1,25 @@
 #pragma once
 
+#include "imgui.h"
 #include <initializer_list>
-#include <memory>
-#include <vector>
-#include <iostream>
+
+// THE QUESTION:
+//      What is more important? The Axes or the plots?
+//      - If I do scripting, I'll probably have to hold the data from the guest
+//      language, so the axes and the plots dissapear *almost* entirely, maybe
+//      imma have to do both guest and host structures for them...
+//
+// THE PLAN:
+//      Settle on what an axis is: if it's just a vector or more than that
+//      Settle on what a plot is (two axis and a)
 
 namespace PPP {
 
-    // Wrapper class for std::shared_ptr of std::vector
-    // - Meant to allow the making of plots which share the values of axes
     template<typename T>
     class Axis
     {
+    public:
+        std::string label = "Axis";
     private:
         std::shared_ptr<std::vector<T>> m_pVec = std::make_shared<std::vector<T>>();
 
@@ -46,12 +54,13 @@ namespace PPP {
 
         ~Axis() = default;
 
-        const std::vector<T>* get() const { return m_pVec.get(); }
+        //Ditch this, probably useless
+        const std::vector<T>* const get() const { return m_pVec.get(); }
 
         std::vector<T>* operator->() const { return m_pVec.get(); }
         std::vector<T>& operator*() const { return *m_pVec; }
 
-        T& operator[](size_t pos) { return (*m_pVec)[pos]; }
+        T& operator[](const size_t& pos) { return (*m_pVec)[pos]; }
 
         auto begin() { return m_pVec->begin(); }
         auto end() { return m_pVec->end(); }
@@ -67,7 +76,14 @@ namespace PPP {
             return os;
         }
 
+    };
 
+    struct Plot
+    {
+        std::string title = "Title";
+
+        Axis<double> xAxis;
+        Axis<double> yAxis;
     };
 
 }
