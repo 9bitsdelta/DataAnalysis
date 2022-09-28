@@ -13,6 +13,9 @@ namespace PPP {
     {
         GuiInit();
 
+        m_Data.reserve(3);
+        m_Plots.reserve(2);
+
         const double min = -10.0f;
         const double max = -min + 0.05f;
         for(float i = min ; i < max ; i += 0.05f)
@@ -26,12 +29,11 @@ namespace PPP {
         m_Data.push_back(Sine);
         m_Data.push_back(Line);
 
-        Plot A(
-                "Sine",
-                Time,
-                Sine,
-                ImPlot::GetColormapColor(m_Plots.size())
-                );
+        Plot A("Sine",
+               Time,
+               Sine,
+               ImPlot::GetColormapColor(m_Plots.size())
+               );
 
         m_Plots.push_back(A);
         A.title = "Line";
@@ -54,6 +56,10 @@ namespace PPP {
 
         GuiRender();
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // GUI
+    ////////////////////////////////////////////////////////////////////////////
 
     void PlotApp::GuiInit()
     {
@@ -83,12 +89,6 @@ namespace PPP {
 
     void PlotApp::GuiRender()
     {
-        // Panel =  Class with both GUI and data manipulation attached to it
-        //          This type of object will change dynamically in terms of
-        //          the data linked to it and
-        //
-        // Standard (Application) Gui will be here
-
         // Debug Overlay
         {
             auto workPos = gui_Viewport->GetWorkPos();
@@ -147,6 +147,7 @@ namespace PPP {
         }
         ImGui::DockSpaceOverViewport(gui_Viewport);
 
+        //Panels
         ShowViewport();
         ShowPlotPanel();
         ShowDataPanel();
@@ -161,6 +162,10 @@ namespace PPP {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // VIEWPORT PANEL
+    ////////////////////////////////////////////////////////////////////////////
+
     void PlotApp::ShowViewport()
     {
         if(ImGui::Begin("Viewport"))
@@ -172,7 +177,15 @@ namespace PPP {
                 for(auto& plot : m_Plots)
                 {
                     ImGui::PushID(&plot);
-                    ImPlot::SetNextLineStyle(plot.colour);
+                    ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle,
+                                               IMPLOT_AUTO,
+                                               plot.colour,
+                                               IMPLOT_AUTO,
+                                               ImVec4(plot.colour.x,
+                                                      plot.colour.y,
+                                                      plot.colour.z,
+                                                      1)
+                                               );
                     ImPlot::PlotScatter(plot.title.c_str(),
                                         plot.xAxis->data(),
                                         plot.yAxis->data(),
@@ -186,19 +199,23 @@ namespace PPP {
         ImGui::End();
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    // PLOT PROPERTY PANEL
+    ////////////////////////////////////////////////////////////////////////////
+
     void PlotApp::ShowPlotPanel()
     {
         if(ImGui::Begin("Plots", NULL, 0))
         {
-            static Plot s_Selected;
+            static size_t s_SelIdx;
             if(ImGui::BeginChild("list", ImVec2(128, 0), true))
             {
-                for(auto& plot : m_Plots)
+                for(size_t i = 0; i < m_Plots.size(); i++)
                 {
-                    ImGui::PushID(&plot);
-                    if(ImGui::Selectable(plot.title.c_str(),
-                                s_Selected == plot))
-                        s_Selected = plot;
+                    ImGui::PushID(&i);
+                    if(ImGui::Selectable(m_Plots[i].title.c_str(),
+                                s_SelIdx == i))
+                        s_SelIdx = i;
                     ImGui::PopID();
                 }
             }
@@ -208,9 +225,9 @@ namespace PPP {
 
             if(ImGui::BeginChild("properties", ImVec2(0, 0), true))
             {
-                ImGui::Text("prop dummy");
+                auto& plot = m_Plots[s_SelIdx];
 
-                ImGui::ColorEdit4("Color", &s_Selected.colour.x);
+                ImGui::ColorEdit4("Color", &plot.colour.x);
 
                 ImGui::Separator();
 
@@ -222,16 +239,16 @@ namespace PPP {
                     ImGui::TableSetupColumn("Y Values");
                     ImGui::TableHeadersRow();
                     for(size_t row_n = 0;
-                            row_n < s_Selected.xAxis->size();
+                            row_n < plot.xAxis->size();
                             row_n++)
                     {
-                        ImGui::PushID(&s_Selected.xAxis[row_n]);
+                        ImGui::PushID(&plot.xAxis[row_n]);
                         ImGui::TableNextColumn();
-                        ImGui::Text("%.3f", s_Selected.xAxis[row_n]);
+                        ImGui::Text("%.3f", plot.xAxis[row_n]);
                         ImGui::PopID();
-                        ImGui::PushID(&s_Selected.yAxis[row_n]);
+                        ImGui::PushID(&plot.yAxis[row_n]);
                         ImGui::TableNextColumn();
-                        ImGui::Text("%.3f", s_Selected.yAxis[row_n]);
+                        ImGui::Text("%.3f", plot.yAxis[row_n]);
                         ImGui::PopID();
                     }
                 }
@@ -241,6 +258,10 @@ namespace PPP {
         }
         ImGui::End();
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // DATA PANEL
+    ////////////////////////////////////////////////////////////////////////////
 
     void PlotApp::ShowDataPanel()
     {
