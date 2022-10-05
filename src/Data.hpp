@@ -1,6 +1,6 @@
 #pragma once
 
-#include "imgui.h"
+#include "implot.h"
 #include <initializer_list>
 
 namespace PPP {
@@ -22,11 +22,13 @@ namespace PPP {
 
         Axis(Axis&& other)
         {
+            label = std::move(other.label);
             *(m_pVec.get()) = std::move(*(other.m_pVec.get()));
         }
 
         Axis& operator=(Axis&& other)
         {
+            label = std::move(other.label);
             *(m_pVec.get()) = std::move(*(other.m_pVec.get()));
             return *this;
         }
@@ -69,6 +71,16 @@ namespace PPP {
             return (lhs.get() == rhs.get());
         }
 
+        const char* get_label() const
+        {
+            return label.c_str();
+        }
+
+    };
+
+    enum class PlotType
+    {
+        Scatter = 0, Line
     };
 
     class Plot
@@ -76,6 +88,7 @@ namespace PPP {
     public:
         std::string title = "Title";
 
+        PlotType type = PlotType::Scatter;
         ImVec4 colour;
 
         Axis xAxis;
@@ -87,12 +100,15 @@ namespace PPP {
         Plot(const std::string& title,
              const Axis& x,
              const Axis& y,
-             const ImVec4& colour)
+             const ImVec4& colour = IMPLOT_AUTO_COL,
+             const PlotType& type = PlotType::Scatter
+             )
         {
             this->title = title;
             this->xAxis = x;
             this->yAxis = y;
             this->colour = colour;
+            this->type = type;
         }
 
         friend bool operator==(const Plot& lhs, const Plot& rhs)

@@ -2,6 +2,7 @@
 
 #include <Mahi/Gui.hpp>
 
+#include "ConsolePanel.hpp"
 #include "Data.hpp"
 
 namespace PPP {
@@ -11,6 +12,7 @@ namespace PPP {
     private:
         std::vector<Axis> m_Data;
         std::vector<Plot> m_Plots;
+        ExampleAppConsole m_Console;
 
         bool gui_ShowDemo = false;
 
@@ -29,5 +31,8 @@ namespace PPP {
         void ShowViewport();
         void ShowPlotPanel();
         void ShowDataPanel();
+
+        void PlotScatter(Plot& plot);
+        void PlotLine(Plot& plot);
     };
 }
